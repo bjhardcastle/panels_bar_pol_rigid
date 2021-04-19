@@ -46,11 +46,11 @@ void loop() {
   // Serial.println(barPinVal); //for testing 
   //Serial.println(barPos); //for testing 
 
-  if (barPos >= (barMidlinePos-LEDToggleRange) && barPos <= (barMidlinePos+LEDToggleRange)) {
+  if ( (barPos >= (barMidlinePos-LEDToggleRange) && barPos <= (barMidlinePos+LEDToggleRange)) )
+   || (bypassToggle == 1) { // bar is within window, or bypass enabled
     digitalWrite(LEDOutputPin, HIGH);
     digitalWrite(LED_BUILTIN, HIGH); // for testing
     // Serial.println("ON"); //for testing 
-
   }
   else {
     digitalWrite(LEDOutputPin, LOW);
