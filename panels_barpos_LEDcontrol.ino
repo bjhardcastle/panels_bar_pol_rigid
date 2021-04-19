@@ -10,6 +10,9 @@ int barInputPin = A0; // input from panels, sampled on A0
 int barPinVal = 0; // raw input val (0-1023)
 int barPos = 0;  // store the bar position (in pixels)
 int barMidlinePos = 49; // (pixels) adjust according to pattern
+int bypassInputPin = A3; // input from another TTL source to bypass LED gating and switch LED on
+int bypassPinVal = 0; // raw input val (0-1023): 2.5V toggle threshold
+int bypassToggle = 0; // stored value, 0 or 1
 int LEDToggleRange = 4; // (+/-pixels) half-width of window in which LED will be on
 
 //outputs
@@ -27,7 +30,16 @@ void loop() {
   // put your main code here, to run repeatedly:
   
   delay(1);
-  
+
+  //read bypass input (0-1023 <=> 0-5V)
+  bypassPinVal = analogRead(bypassInputPin);
+  if bypassPinVal >= 511 { // 2.5V toggle threshold
+     bypassToggle = 1;
+  }
+  else {
+      bypassToggle = 0;
+  }
+      
   //read bar position (0-1023 <=> 0-5V <=> 1-96pix (for pattern with 96 x-positions
   barPinVal = analogRead(barInputPin);
   barPos = ceil((barPinVal*0.0938)); // *96/1024
