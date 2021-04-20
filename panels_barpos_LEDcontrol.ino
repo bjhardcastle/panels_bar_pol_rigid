@@ -10,10 +10,10 @@ int barInputPin = A0; // input from panels, sampled on A0
 int barPinVal = 0; // raw input val (0-1023)
 int barPos = 0;  // store the bar position (in pixels)
 int barMidlinePos = 49; // (pixels) adjust according to pattern
-int bypassInputPin = A3; // input from another TTL source to bypass LED gating and switch LED on
+int bypassInputPin = A2; // input from another TTL source to bypass LED gating and switch LED on
 int bypassPinVal = 0; // raw input val (0-1023): 2.5V toggle threshold
 int bypassToggle = 0; // stored value, 0 or 1
-int LEDToggleRange = 4; // (+/-pixels) half-width of window in which LED will be on
+int LEDToggleRange = 2; // (+/-pixels) half-width of window in which LED will be on
 
 //outputs
 int LEDOutputPin = 2; // output to LED 
@@ -33,6 +33,7 @@ void loop() {
 
   //read bypass input (0-1023 <=> 0-5V)
   bypassPinVal = analogRead(bypassInputPin);
+  //Serial.println(bypassPinVal); //for testing 
   if (bypassPinVal >= 511) { // 2.5V toggle threshold
      bypassToggle = 1;
   }
@@ -46,7 +47,7 @@ void loop() {
   // Serial.println(barPinVal); //for testing 
   //Serial.println(barPos); //for testing 
 
-  if ( (barPos >= (barMidlinePos-LEDToggleRange) && barPos <= (barMidlinePos+LEDToggleRange) ) || (bypassToggle == 1) ) { // bar is within window, or bypass enabled
+  if ( ((barPos >= (barMidlinePos-LEDToggleRange)) && (barPos <= (barMidlinePos+LEDToggleRange)) ) || (bypassToggle == 1) ) { // bar is within window, or bypass enabled
     digitalWrite(LEDOutputPin, HIGH);
     digitalWrite(LED_BUILTIN, HIGH); // for testing
     // Serial.println("ON"); //for testing 
