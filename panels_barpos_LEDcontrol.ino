@@ -33,7 +33,7 @@ void loop() {
 
   //read bypass input (0-1023 <=> 0-5V)
   bypassPinVal = analogRead(bypassInputPin);
-  if bypassPinVal >= 511 { // 2.5V toggle threshold
+  if (bypassPinVal >= 511) { // 2.5V toggle threshold
      bypassToggle = 1;
   }
   else {
@@ -46,8 +46,7 @@ void loop() {
   // Serial.println(barPinVal); //for testing 
   //Serial.println(barPos); //for testing 
 
-  if ( (barPos >= (barMidlinePos-LEDToggleRange) && barPos <= (barMidlinePos+LEDToggleRange)) )
-   || (bypassToggle == 1) { // bar is within window, or bypass enabled
+  if ( (barPos >= (barMidlinePos-LEDToggleRange) && barPos <= (barMidlinePos+LEDToggleRange) ) || (bypassToggle == 1) ) { // bar is within window, or bypass enabled
     digitalWrite(LEDOutputPin, HIGH);
     digitalWrite(LED_BUILTIN, HIGH); // for testing
     // Serial.println("ON"); //for testing 
