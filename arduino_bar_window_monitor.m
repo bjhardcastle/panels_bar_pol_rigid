@@ -1,12 +1,8 @@
-bar_time_threshold = 10; % sec
 
+%% Establish connection to arduino
 try 
     % connect to arduino
     uno = arduino('COM4', 'Uno');
-    
-    % set analog input pin
-    configurePin(uno,'A0','AnalogInput')
-    
 catch ME
     % arduino connection may already exist, which causes error. 
     % If it has the variable name we want we can igore it:
@@ -16,10 +12,18 @@ catch ME
         rethrow(ME);
     end
 end
+
+%% Setup variables 
+
+% set analog input pin
+configurePin(uno,'A0','AnalogInput')
     
+
+%% Setup variables 
 % variables to track amount of time bar has spent in window
-time_volt_init = readVoltage(uno,'A0'); %initial voltage reading
+bar_time_threshold = 10; % sec
 bar_time = 0; % seconds
+time_volt_init = readVoltage(uno,'A0'); %initial voltage reading
 
 clc; disp(['Waiting for cumuluative bar_time to pass ' bar_time_threshold 'sec...'])
 ct = 0;
