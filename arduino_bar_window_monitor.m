@@ -40,6 +40,7 @@ while bar_time < bar_time_threshold
     end
 end
     
-% Next: wait for bar position to be within window for 
+% Next: wait for bar position to be within window for x sec, then turn off
+% bar/ move it to back and  move to next phase of exp and
      
     
