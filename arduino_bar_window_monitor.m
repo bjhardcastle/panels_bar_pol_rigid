@@ -13,9 +13,9 @@ catch ME
     end
 end
 
-%% Setup variables 
+%% Setup i/o
 
-% set analog input pin
+% set analog input pin for reading 
 configurePin(uno,'A0','AnalogInput')
     
 
