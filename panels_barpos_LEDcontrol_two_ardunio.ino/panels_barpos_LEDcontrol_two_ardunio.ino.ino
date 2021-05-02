@@ -93,7 +93,6 @@ void loop() {
     // main section: gating of LED based on bar pos
     // ####################################################################################################
 
-
     //read bar position (0-1023 <=> 0-5V <=> 1-96pix (for pattern with 96 x-positions
     barPosPinVal = analogRead(barPosInputPin);
     barPos = ceil((barPosPinVal * 0.0938)); // *96/1024
