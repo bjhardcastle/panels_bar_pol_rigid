@@ -61,6 +61,7 @@ configurePin(uno,resetBarTimeOutputPin,'DigitalOutput') % reset time
 
 resetNanoOutputPin = 'D8';% solder to D8(uno)/RST(nano)
 configurePin(uno,resetNanoOutputPin,'DigitalOutput') % reset time
-writeDigitalPin(uno,resetNanoOutputPin,1) % nano switched ON
-writeDigitalPin(uno,resetNanoOutputPin,0) % nano switched OFF
+% writeDigitalPin(uno,resetNanoOutputPin,1) % nano switched ON
+% writeDigitalPin(uno,resetNanoOutputPin,0) % nano switched OFF
 
+nano = device(uno,'I2CAddress',0);

@@ -1,3 +1,6 @@
+#include <Wire.h> // reqd for I2C 
+
+// ####################################################################################################
 // switch LED on/off depending on bar position on panels
 // for use during closed-loop bar tracking: TWO ARDUINO SETUP
 //
@@ -5,9 +8,6 @@
 // - Arduino1 sets voltage level > sends to Arduino2
 // - Arduino2 waits for bar to enter certain position (within window)
 // - Arduino2 sends to voltage level to LED driver via PWM Aout
-// ####################################################################################################
-
-#include <Wire.h>
 // ####################################################################################################
 
 // inputs
@@ -65,7 +65,7 @@ void setup() {
    // Serial.begin(115200); // for testing
   Serial.print("\n\tnano reset\n");
 
-  Wire.begin();
+  Wire.begin(0);
   
   // at start, read desired LED voltage from matlab-connected Arduino1 and setup for output to LED on pwm pin
   LEDVoltagePinVal = analogRead(LEDVoltageInputPin); // 0-1023 (read) => 0-255 (sent) => 0-100%
@@ -182,14 +182,11 @@ barPos = 48;
   Serial.print(LEDVoltage);
 
 float barTimeTotal = 0;
-  barTimeTotal = barTimeMultiplyVal*255 + barTimePinVal;
+  barTimeTotal = (float)barTimeMultiplyVal*255.0 + (float)barTimePinVal;
   byte barTimeByte = barTimeTotal;
-    Wire.beginTransmission(4); // transmit to device #4
+ Wire.beginTransmission(0); // transmit to device #4
   Wire.write(barTimeByte);              // sends one byte  
   Wire.endTransmission();    // stop transmitting
-
-  Serial.print("\nbarTimeByte\t\t\t");
-  Serial.print(barTimeByte);
   
   Serial.print("\nbarTimeTotal\t\t\t");
   Serial.print(barTimeTotal);
