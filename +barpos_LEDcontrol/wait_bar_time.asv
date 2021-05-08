@@ -1,13 +1,14 @@
 %% Setup variables
 % variables to track amount of time bar has spent in window
+bar_time_threshold = 10; % sec
 
-digitalWrite(uno,bypassOutputPin,0)
-
-disp(['Waiting for cumuluative bar_time to pass ' num2str(bar_time_threshold) 'sec...'])
+clc; disp(['Waiting for cumuluative bar_time to pass ' bar_time_threshold 'sec...'])
 % bar_time = 0; % seconds
 barWindowFlag = 0;
 while bar_time < bar_time_threshold
-        
+    
+    pause(0.1)
+    
     barInWindow = digitalRead(uno,barInWindowInputPin);=
     
     if barInWindow
@@ -23,8 +24,9 @@ while bar_time < bar_time_threshold
         windowFlag = 1;
     end
     
-    if ~mod(bar_time,1) %== 0
+    if mod(
         disp(num2str(bar_time))
+        ct = bar_time;
     end
 end
 
