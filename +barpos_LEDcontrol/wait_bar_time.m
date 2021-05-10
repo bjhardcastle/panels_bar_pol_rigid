@@ -8,7 +8,7 @@ disp(['Waiting for cumuluative bar_time to pass ' num2str(bar_time_threshold) 's
 barWindowFlag = 0;
 while bar_time < bar_time_threshold
         
-    barInWindow = digitalRead(uno,barInWindowInputPin);=
+    barInWindow = readDigitalPin(uno,barInWindowInputPin);
     
     if barInWindow
         if ~windowFlag % bar was previously outside

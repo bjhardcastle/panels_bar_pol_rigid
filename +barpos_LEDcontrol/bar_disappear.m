@@ -12,7 +12,7 @@ while (sum(bar_time_history) < bar_disappear_fraction*bar_disappear_threshold) &
     
     % discard oldest entry in history and append latest reading 
     bar_time_history = circshift(bar_time_history,1);    
-    windowFlag = digitalRead(uno,barInWindowInputPin);
+    windowFlag = readDigitalPin(uno,barInWindowInputPin);
     bar_time_history(1) = windowFlag;
     
     if (sum(bar_time_history) >= bar_disappear_fraction*bar_disappear_threshold) && windowFlag

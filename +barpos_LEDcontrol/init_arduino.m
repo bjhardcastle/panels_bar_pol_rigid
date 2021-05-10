@@ -36,9 +36,9 @@ end
 %% Setup i/o
 
 % set analog input pins
-barPosInputPin = 'A0';
-configurePin(uno,barPosInputPin,'AnalogInput') % bar pos
-
+% barPosInputPin = 'A0';
+% configurePin(uno,barPosInputPin,'AnalogInput') % bar pos
+% 
 % % removed - time now calculated in matlab
 % barTimeInputPin = 'A1';
 % configurePin(uno,barTimeInputPin,'AnalogInput') % time (s) bar has spent within window (0-255)
@@ -66,7 +66,7 @@ configurePin(uno,barInWindowInputPin,'DigitalInput') % reset time
 % configurePin(uno,resetNanoOutputPin,'DigitalOutput') % reset time
 % writeDigitalPin(uno,resetNanoOutputPin,1) % nano switched ON
 % writeDigitalPin(uno,resetNanoOutputPin,0) % nano switched OFF
-digitalWrite(uno,bypassOutputPin,0)
+writeDigitalPin(uno,bypassOutputPin,0)
 % nano = device(uno,'I2CAddress',0);
 
 barpos_LEDcontrol.reset_bar_time

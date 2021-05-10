@@ -1,3 +1,3 @@
-digitalWrite(uno,manualONOFFOutputPin,0)
-digitalWrite(uno,bypassOutputPin,1)
+writeDigitalPin(uno,manualONOFFOutputPin,0)
+writeDigitalPin(uno,bypassOutputPin,1)
 disp('manual LED OFF')

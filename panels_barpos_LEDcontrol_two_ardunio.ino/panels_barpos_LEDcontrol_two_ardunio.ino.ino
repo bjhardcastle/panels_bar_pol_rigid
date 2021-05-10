@@ -1,3 +1,5 @@
+// int nidx = 0;
+
 // ####################################################################################################
 // switch LED on/off depending on bar position on panels
 // for use during closed-loop bar tracking: TWO ARDUINO SETUP
@@ -12,8 +14,8 @@
 
 int barPosInputPin = A0;  // input from panels controller (DAC), sampled on A0
 int barPosPinVal = 0;     // raw input val (0-1023)
-int barPos = 0;           // store the bar position (in pixels)
-int barMidlinePos = 49;   // (pixels) adjust according to pattern
+float barPos = 0;           // store the bar position (in pixels)
+int barMidlinePos = 57;   // (pixels) adjust according to pattern
 int LEDToggleRange = 2;   // (+/-pixels) half-width of window in which LED will be on
 
 // int LEDVoltageInputPin = A7;  // input from Aout on Arduino1 (connected to Matlab), specify LED voltage
@@ -62,9 +64,9 @@ pinMode(bypassInputPin, INPUT);                          // sets the pin as outp
 pinMode(manualONOFFInputPin, INPUT);                          // sets the pin as output
 pinMode(windowFlagOutputPin, OUTPUT);                          // sets the pin as output
 
-Serial.begin(115200);  // for testing
+// Serial.begin(115200);  // for testing
 // Serial.begin(115200); // for testing
-Serial.print("\n\tnano reset\n");
+// Serial.print("\n\tnano reset\n");
 
 // at start, read desired LED voltage from matlab-connected Arduino1 and setup for output to LED on pwm pin
 //   LEDVoltagePinVal = analogRead(LEDVoltageInputPin);  // 0-1023 (read) => 0-255 (sent) => 0-100%
@@ -97,18 +99,18 @@ if (!bypassToggle) {
 // main section: gating of LED based on bar pos
 // ####################################################################################################
 
-//read bar position (0-1023 <=> 0-5V <=> 1-96pix (for pattern with 96 x-positions
+//read bar position (0-1023 <=> 0-5V <=> 1-160pix (for pattern with 160 x-positions
 barPosPinVal = analogRead(barPosInputPin);
-barPos = ceil((barPosPinVal * 0.0938));  // *96/1024
-//Serial.println(barPosPinVal); //for testing
-//Serial.println(barPos); //for testing
+barPos = floor(barPosPinVal * 0.0733);  // *75/1023 (assuming bar pattern has 160 positions, arduino reads half of these (1023  = 80pix))
+// barPos = ceil((barPosPinVal * 0.0938));  // *96/1023 (assuming bar pattern has 96 positions)
+// Serial.println(barPosPinVal); //for testing
+// Serial.println(barPos); //for testing
 
 if ((barPos >= (barMidlinePos - LEDToggleRange)) && (barPos <= (barMidlinePos + LEDToggleRange))) {  // bar is within window
 analogWrite(LEDOutputPin, LEDOutputPinVal);
 digitalWrite(LED_BUILTIN, HIGH);  // for testing
 // Serial.println("ON"); //for testing
-digitalWrite(windowFlag, 1);  
-
+windowFlag = 1; 
 //// increment millisecond counter
 //barTimeSumMS = (barTimeSumMS + 1) % 1000;
 
@@ -126,7 +128,7 @@ digitalWrite(windowFlag, 1);
 else {  // LED off
 analogWrite(LEDOutputPin, 0);
 digitalWrite(LED_BUILTIN, LOW);  // for testing
-digitalWrite(windowFlag, 0);  
+windowFlag = 0; 
 // Serial.println("OFF"); //for testing
 }
 }
@@ -134,15 +136,14 @@ digitalWrite(windowFlag, 0);
 else {
 // main section skipped: bypass is toggled HIGH
 // allow manual ON/OFF control of LED
+windowFlag = 0; 
 manualONOFFToggle = digitalRead(manualONOFFInputPin);
 if (manualONOFFToggle) {  // LED on
 analogWrite(LEDOutputPin, LEDOutputPinVal);
 digitalWrite(LED_BUILTIN, HIGH);  // for testing
-digitalWrite(windowFlag, 1);  
 } else {                            // LED off
-analogWrite(LEDOutputPin, 0);
+analogWrite(LEDOutputPin, LOW);
 digitalWrite(LED_BUILTIN, LOW);  // for testing
-digitalWrite(windowFlag, 0); 
 }
 }
 // ####################################################################################################
@@ -151,64 +152,75 @@ digitalWrite(windowFlag, 0);
 //barTimePinVal = barTimeSumS;
 //analogWrite(barTimeOutputPin, barTimePinVal);
 //analogWrite(barTimeMultiplyOutputPin, barTimeMultiplyVal);
-
+digitalWrite(windowFlagOutputPin, windowFlag);  
 // ####################################################################################################
 
-//// for testing
+// for testing
 
-//nidx++; 
-//if (nidx % 1000 == 0) {
-//// at start, read desired LED voltage from matlab-connected Arduino1 and setup for output to LED on pwm pin
-//LEDVoltagePinVal = analogRead(LEDVoltageInputPin);  // 0-1023 (read) => 0-255 (sent) => 0-100%
-//LEDVoltage = LEDVoltagePinVal * 0.00488;            // 5/1023
-////Serial.println(LEDVoltage); //for testing
-//LEDOutputPinVal = LEDVoltage * 51;  //255/5
-//analogWrite(LEDOutputPin, LEDOutputPinVal);
+// nidx++; 
+// if (nidx % 1000 == 0) {
 
-//Serial.print("\n\n#########################################");
+// // barPosPinVal = analogRead(barPosInputPin);
+// // barPos = round(barPosPinVal * 0.0733);  // *80/1023 (assuming bar pattern has 160 positions, arduino reads half of these ie 80pix = 1023)
+// // // at start, read desired LED voltage from matlab-connected Arduino1 and setup for output to LED on pwm pin
+// // LEDVoltagePinVal = analogRead(LEDVoltageInputPin);  // 0-1023 (read) => 0-255 (sent) => 0-100%
+// // LEDVoltage = LEDVoltagePinVal * 0.00488;            // 5/1023
+// // //Serial.println(LEDVoltage); //for testing
+// // LEDOutputPinVal = LEDVoltage * 51;  //255/5
+// // analogWrite(LEDOutputPin, LEDOutputPinVal);
 
-//Serial.print("\nresetBarTimeToggle\t\t");
-//Serial.print(resetBarTimeToggle);
+// Serial.print("\n\n#########################################");
 
-//Serial.print("\nbypassToggle\t\t\t");
-//Serial.print(bypassToggle);
+// // Serial.print("\nresetBarTimeToggle\t\t");
+// // Serial.print(resetBarTimeToggle);
 
-//Serial.print("\nmanualONOFFToggle\t\t");
-//Serial.print(manualONOFFToggle);
+// Serial.print("\nbypassToggle\t\t\t");
+// Serial.print(bypassToggle);
 
-//Serial.print("\nLEDVoltage\t\t\t");
-//Serial.print(LEDVoltage);
+// Serial.print("\nmanualONOFFToggle\t\t");
+// Serial.print(manualONOFFToggle);
 
-//Serial.print("\nLEDVoltage\t\t\t");
-//Serial.print(LEDVoltage);
+// Serial.print("\nwindowFlag\t\t\t");
+// Serial.print(windowFlag);
 
-//float barTimeTotal = 0;
-//barTimeTotal = (float)barTimeMultiplyVal * 255.0 + (float)barTimePinVal;
-//byte barTimeByte = barTimeTotal;
-//Wire.beginTransmission(0);  // transmit to device #4
-//Wire.write(barTimeByte);    // sends one byte
-//Wire.endTransmission();     // stop transmitting
+// Serial.print("\nbarPosPin\t\t\t");
+// Serial.print(barPosPinVal);
 
-//Serial.print("\nbarTimeTotal\t\t\t");
-//Serial.print(barTimeTotal);
-//Serial.print(" s");
+// Serial.print("\nbarPos\t\t\t\t");
+// Serial.print(barPos);
+// // Serial.print("\nLEDVoltage\t\t\t");
+// // Serial.print(LEDVoltage);
 
-//Serial.print("\nbarTimeSumMS\t\t\t");
-//Serial.print(barTimeSumMS);
-//Serial.print(" ms");
+// // Serial.print("\nLEDVoltage\t\t\t");
+// // Serial.print(LEDVoltage);
 
-//Serial.print("\nbarTimeSumS\t\t\t");
-//Serial.print(barTimeSumS);
-//Serial.print(" s");
+// // float barTimeTotal = 0;
+// // barTimeTotal = (float)barTimeMultiplyVal * 255.0 + (float)barTimePinVal;
+// // byte barTimeByte = barTimeTotal;
+// // Wire.beginTransmission(0);  // transmit to device #4
+// // Wire.write(barTimeByte);    // sends one byte
+// // Wire.endTransmission();     // stop transmitting
 
-//Serial.print("\nbarTimeMultiplyVal\t\t");
-//Serial.print(barTimeMultiplyVal);
+// // Serial.print("\nbarTimeTotal\t\t\t");
+// // Serial.print(barTimeTotal);
+// // Serial.print(" s");
 
-//Serial.print("\nbarTimePinVal\t\t\t");
-//Serial.print(barTimePinVal);
+// // Serial.print("\nbarTimeSumMS\t\t\t");
+// // Serial.print(barTimeSumMS);
+// // Serial.print(" ms");
 
-//Serial.print("\n");
+// // Serial.print("\nbarTimeSumS\t\t\t");
+// // Serial.print(barTimeSumS);
+// // Serial.print(" s");
 
+// // Serial.print("\nbarTimeMultiplyVal\t\t");
+// // Serial.print(barTimeMultiplyVal);
+
+// // Serial.print("\nbarTimePinVal\t\t\t");
+// // Serial.print(barTimePinVal);
+
+// Serial.print("\n");
+
+// }  // end of testing serial print commands
 // ####################################################################################################
-}  // end of testing serial print commands
 }
