@@ -1,11 +1,11 @@
 %% Setup variables 
 
 % tracking amount of time bar has spent in window
-bar_time_threshold = 10; % sec
+bar_time_threshold = 30; % sec
 
 % before it disappears, bar must be within window for _fraction of the last _threshold sec
 bar_disappear_fraction = 0.5; 
-bar_disappear_threshold = 2; %sec
+bar_disappear_threshold = 10; %sec
 bar_disappear_interval = 0.1; %sec
 
 % % voltages to send to LED driver (MOD mode: 0-5V => 0-100%)
@@ -60,14 +60,13 @@ manualONOFFOutputPin = 'D3';
 configurePin(uno,manualONOFFOutputPin,'DigitalOutput') % manual LED control (ON/OFF)
 
 barInWindowInputPin = 'D4';
-configurePin(uno,barWindowInputPin,'DigitalInput') % reset time
+configurePin(uno,barInWindowInputPin,'DigitalInput') % reset time
 
 % resetNanoOutputPin = 'D8';% solder to D8(uno)/RST(nano)
 % configurePin(uno,resetNanoOutputPin,'DigitalOutput') % reset time
 % writeDigitalPin(uno,resetNanoOutputPin,1) % nano switched ON
 % writeDigitalPin(uno,resetNanoOutputPin,0) % nano switched OFF
 digitalWrite(uno,bypassOutputPin,0)
-reset_bar_time
 % nano = device(uno,'I2CAddress',0);
 
-reset_bar_time
+barpos_LEDcontrol.reset_bar_time
