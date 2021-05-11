@@ -62,11 +62,9 @@ configurePin(uno,manualONOFFOutputPin,'DigitalOutput') % manual LED control (ON/
 barInWindowInputPin = 'D4';
 configurePin(uno,barInWindowInputPin,'DigitalInput') % reset time
 
-% resetNanoOutputPin = 'D8';% solder to D8(uno)/RST(nano)
-% configurePin(uno,resetNanoOutputPin,'DigitalOutput') % reset time
-% writeDigitalPin(uno,resetNanoOutputPin,1) % nano switched ON
-% writeDigitalPin(uno,resetNanoOutputPin,0) % nano switched OFF
-writeDigitalPin(uno,bypassOutputPin,0)
-% nano = device(uno,'I2CAddress',0);
+resetNanoOutputPin = 'D12';% solder to D8(uno)/RST(nano)
+configurePin(uno,resetNanoOutputPin,'DigitalOutput') % reset time
 
+barpos_LEDcontrol.reset_nano
+barpos_LEDcontrol.restore_control
 barpos_LEDcontrol.reset_bar_time
