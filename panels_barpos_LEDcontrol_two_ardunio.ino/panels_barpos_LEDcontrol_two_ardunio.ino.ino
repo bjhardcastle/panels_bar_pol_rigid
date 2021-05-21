@@ -8,7 +8,7 @@
 // - Arduino2 bypasses arduino1 CL control and manually toggles LED
 // ####################################################################################################
 
-// int nidx = 0; for testing
+int nidx = 0; // for testing
 
 // inputs
 
@@ -64,29 +64,30 @@ void loop() {
 delay(1);
 // ####################################################################################################
 
-//read bypass pin
-bypassToggle = digitalRead(bypassInputPin);
-
-// ####################################################################################################
-
-if (!bypassToggle) {
-// main section: gating of LED based on bar pos
-// ####################################################################################################
-
 //read bar position (0-1023 <=> 0-5V <=> 1-160pix (for pattern with 160 x-positions
 barPosPinVal = analogRead(barPosInputPin);
 barPos = floor(barPosPinVal * 0.0733);  // *75/1023 (assuming bar pattern has 160 positions, arduino reads half of these (1023  = 80pix))
 // barPos = floor(barPosPinVal * 0.0938);  // *96/1023 (assuming bar pattern has 160 positions, arduino reads half of these (1023  = 80pix))
 // barPos = floor(barPosPinVal * 0.1564);  // *160/1023 (assuming bar pattern has 160 positions, arduino reads half of these (1023  = 80pix))
 
+// ####################################################################################################
+
+//read bypass pin
+bypassToggle = digitalRead(bypassInputPin);
+
+if (!bypassToggle) {
+// main section: gating of LED based on bar pos
+// ####################################################################################################
+
+
 if ((barPos >= (barMidlinePos - LEDToggleRange)) && (barPos <= (barMidlinePos + LEDToggleRange))) {  // bar is within window
 analogWrite(LEDOutputPin, LEDOutputPinVal);
-// digitalWrite(LED_BUILTIN, HIGH);  // for testing
+digitalWrite(LED_BUILTIN, HIGH);  // for testing
 windowFlag = 1; 
 }
 else {  // LED off
 analogWrite(LEDOutputPin, 0);
-// digitalWrite(LED_BUILTIN, LOW);  // for testing
+digitalWrite(LED_BUILTIN, LOW);  // for testing
 windowFlag = 0; 
 }
 }
@@ -97,10 +98,10 @@ else {
 manualONOFFToggle = digitalRead(manualONOFFInputPin);
 if (manualONOFFToggle) {  // LED on
 analogWrite(LEDOutputPin, LEDOutputPinVal);
-// digitalWrite(LED_BUILTIN, HIGH);  // for testing
+digitalWrite(LED_BUILTIN, HIGH);  // for testing
 } else {                            // LED off
 analogWrite(LEDOutputPin, LOW);
-// digitalWrite(LED_BUILTIN, LOW);  // for testing
+digitalWrite(LED_BUILTIN, LOW);  // for testing
 }
 windowFlag = 0; 
 }
@@ -115,7 +116,7 @@ digitalWrite(windowFlagOutputPin, windowFlag);
 
 // nidx++; 
 // if (nidx % 1000 == 0) {
-
+// nidx = 0;
 // // barPosPinVal = analogRead(barPosInputPin);
 // // barPos = round(barPosPinVal * 0.0733);  // *80/1023 (assuming bar pattern has 160 positions, arduino reads half of these ie 80pix = 1023)
 // // // at start, read desired LED voltage from matlab-connected Arduino1 and setup for output to LED on pwm pin
@@ -127,8 +128,8 @@ digitalWrite(windowFlagOutputPin, windowFlag);
 
 // Serial.print("\n\n#########################################");
 
-// // Serial.print("\nresetBarTimeToggle\t\t");
-// // Serial.print(resetBarTimeToggle);
+// Serial.print("\nresetBarTimeToggle\t\t");
+// Serial.print(resetBarTimeToggle);
 
 // Serial.print("\nbypassToggle\t\t\t");
 // Serial.print(bypassToggle);
@@ -144,8 +145,9 @@ digitalWrite(windowFlagOutputPin, windowFlag);
 
 // Serial.print("\nbarPos\t\t\t\t");
 // Serial.print(barPos);
-// // Serial.print("\nLEDVoltage\t\t\t");
-// // Serial.print(LEDVoltage);
+
+// Serial.print("\nLEDVoltage\t\t\t");
+// Serial.print(LEDVoltage);
 
 // // Serial.print("\nLEDVoltage\t\t\t");
 // // Serial.print(LEDVoltage);

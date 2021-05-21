@@ -1,21 +1,23 @@
 % makes a low contrast bright bar pattern with grayscale and row compression
 bar_width = 6; % floored to nearest even value 
-bar_brightness= 1;
+bar_brightness= 0:7;
 pat_dir = cd;
 
 pattern.x_num = 160; 	% There are 160 pixel around the display (12 actual columns, 8 missing)
-pattern.y_num = 2; 		% y1 bar is visible, y2 bar is invisible
+pattern.y_num = length(bar_brightness); 		%  y1 bar is invisible, y2:end bar is visible
 pattern.num_panels = 80; 	% This is the number of unique Panel IDs required.
-pattern.gs_val = 4; 	% This pattern will use 16 intensity levels
+pattern.gs_val = 3; 	% This pattern will use 8 intensity levels
 pattern.row_compression = 1;
 
 Pats = zeros(4, 160, pattern.x_num, pattern.y_num); 	%initializes the array with zeros
+for bb = 1:length(bar_brightness)
 % make bright bar with starting position within 'invisible' mising LEDs at rear
-Pats(:, 1:floor(0.5*bar_width), 1) = bar_brightness;
-Pats(:, end-floor(0.5*bar_width)+1:end, 1) = bar_brightness;
+Pats(:, 1:floor(0.5*bar_width), 1, bb) = bar_brightness(bb);
+Pats(:, end-floor(0.5*bar_width)+1:end, 1, bb) = bar_brightness(bb);
 
 for jj = 2:160 			%use ShiftMatrixPats to rotate stripe image
-    Pats(:,:,jj,1) = ShiftMatrix(Pats(:,:,jj-1,1),1,'r','y');
+    Pats(:,:,jj,bb) = ShiftMatrix(Pats(:,:,jj-1,bb),1,'r','y');
+end
 end
 
 pattern.Pats = Pats;
@@ -44,5 +46,5 @@ pattern.BitMapIndex = process_panel_map(pattern);
 pattern.data = Make_pattern_vector(pattern);
 
 % Save
-str = fullfile(pat_dir, ['Pattern_20x4_bright_bar_width_' num2str(bar_width) '_brightness_' num2str(bar_brightness) '.mat']);
+str = fullfile(pat_dir, ['Pattern_20x4_bright_bar_width_' num2str(bar_width) '_brightness_' num2str(min(bar_brightness)) '-' num2str(max(bar_brightness)) '.mat']);
 save(str, 'pattern');

@@ -1,5 +1,8 @@
 %% Setup variables
 % variables to track amount of time bar has spent in window
+if ~exist('uno','var')
+   barpos_LEDcontrol.init_arduino 
+end
 
 digitalWrite(uno,bypassOutputPin,0)
 

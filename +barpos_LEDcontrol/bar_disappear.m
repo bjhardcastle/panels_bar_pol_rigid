@@ -1,3 +1,6 @@
+if ~exist('uno','var')
+   barpos_LEDcontrol.init_arduino 
+end
 
 digitalWrite(uno,bypassOutputPin,0)
 
