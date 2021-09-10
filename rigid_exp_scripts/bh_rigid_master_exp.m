@@ -1,4 +1,5 @@
 function bh_rigid_master_exp(expSelect,parameterSet,runInit)
+global uno
 import polstim.*
 import barpos_LEDcontrol.*
 % Added 03/2021:
@@ -52,20 +53,41 @@ end
 if any(ismember([1,2,3,4,8,10],expSelect))
     [~] = input('Turn on step motor and LED, then hit any key:  ');
     % Setup step motor control and initialize polarizer
+    init_arduino
     manual_OFF % pol LED OFF
     step_control;
     disp('MCCDAQ started.')
-    
-    if runInit 
-        disp('Initializing..')
-        init_polarizer(MCCai,MCCao);
+    % Check polarizer angle:
+    v = ver;
+    if str2double( v(1).Date(end-3:end) ) < 2015
+        % Legacy code
+        start(MCCai)
+        sensor_value = getdata(MCCai,1);
+        stop(MCCai)
     else
-        disp('Initialization skipped..')
+        sensor_value = inputSingleScan(MCCai);
     end
+    
+    % If necessary, initialize polarizer
+    if ( exist('polState','var') && polState.current_angle ~= 0) || sensor_value > 1
+        disp('Initializing..')
+        init_polarizer(MCCai,MCCao)
+        polState.current_angle = 0;
+        polState.current_step = 0;
+    end
+
+    %     if runInit
+    %         disp('Initializing..')
+    %         init_polarizer(MCCai,MCCao);
+    %     else
+    %         disp('Initialization skipped..')
+    %     end
     
     polState.current_angle = 0;
     polState.current_step = 0;
 end
+% Get fly set up before logging data %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 
 % Start DAQ logging %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -74,29 +96,32 @@ end
 % saved copy:
 % clc;[errorFlag] = checkParameterSet(parameterSet);
 % assert(~errorFlag,'Modify parameters and run again');
+
 % Save a copy of the parameters used for this set of experiments
-file_name=[todaypath '\aq_EXP_PARAMETERS_' datestr(datevec(now),'yyyymmdd_HHMM')];
-save(file_name, 'parameterSet');
+% ( actual save is below, after finding home-angle) - get filename here so
+% it has a matching timestamp with the daq file 
+param_file_name=[todaypath '\aq_EXP_PARAMETERS_' datestr(datevec(now),'yyyymmdd_HHMM')];
+save(param_file_name, 'parameterSet');
 
 % Initialize DAQ (will save a .daq file to current experiment folder)
-[ao, ai, dio]=fINIT_NiDAQ(todaypath,0:3,0:6);
+[ao, ai, dio]=fINIT_NiDAQ(todaypath,0:3,[0:7,16:18]);
 try outputSingleScan(ao,[0 0 0 0]), catch, putsample(ao,[0 0 0 0]), end
 
-% Start DAQ recording (stall for time to prevent hastily double-tapped keys
-% starting the experiments before slidebook is recording)
-try startBackground(ai), catch, start(ai), end
-
-clc;disp('DAQ starting')
-pause(0.7)
-clc;disp('DAQ starting.')
-pause(0.7)
-clc;disp('DAQ starting..')
-pause(0.7)
-clc;disp('DAQ starting...')
-
-% Now we can start recording in Slidebook:
-clc;[~] = input('Load fly, then hit any key:  ');
-
+% % Start DAQ recording (stall for time to prevent hastily double-tapped keys
+% % starting the experiments before slidebook is recording)
+% try startBackground(ai), catch, start(ai), end
+% 
+% clc;disp('DAQ starting')
+% pause(0.7)
+% clc;disp('DAQ starting.')
+% pause(0.7)
+% clc;disp('DAQ starting..')
+% pause(0.7)
+% clc;disp('DAQ starting...')
+% 
+% % Now we can start recording in Slidebook:
+% clc;[~] = input('Load fly, then hit any key:  ');
+% 
 % Experiments %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 for eIdx = 1:length(expSelect)
@@ -104,18 +129,27 @@ for eIdx = 1:length(expSelect)
     
     % Enter individual experiments
     switch expIdx
-        case {1} % UV square wave
-            [polState] = bh_rigid_exp_barpos_pol(ao, MCCao, MCCai, polState, parameterSet, expIdx);
-%         case {2,4,8,10} % UV pol rotate
-%             [polState] = bh_avp_exp_pol_rotate(ao, MCCao, MCCai, polState, parameterSet, expIdx);
-%         case 5     % blue single-pixel bars
-%             bh_avp_exp_panels_bars(ao, parameterSet, expIdx);
-%         case 6     % blue dot-field
-%             bh_avp_exp_panels_dots(ao, parameterSet, expIdx);
-%         case {7,9} % blue brightness
-%             bh_avp_exp_panels_bright(ao, parameterSet, expIdx);
-%         case 11     % blue two-pixel bar, closer spaced for mapping
-%             bh_avp_exp_panels_barMap(ao, parameterSet, expIdx);
+        case {1} % bar + pol
+            
+            % randomize home angle and save in parameter file:
+            if parameterSet(expIdx).expRandomHomeAngle
+                 parameterSet(expIdx).polHomeAngle = parameterSet(expIdx).polHomeAngleArray(randi(length( parameterSet(expIdx).polHomeAngleArray)));
+            else
+                parameterSet(expIdx).polHomeAngle = parameterSet(expIdx).polHomeAngleFixed;
+            end
+            save(param_file_name, 'parameterSet', '-append');
+
+            [polState,homeAngle] = bh_rigid_exp_barpos_pol(ao, ai, MCCao, MCCai, polState, parameterSet, expIdx);
+            %         case {2,4,8,10} % UV pol rotate
+            %             [polState] = bh_avp_exp_pol_rotate(ao, MCCao, MCCai, polState, parameterSet, expIdx);
+            %         case 5     % blue single-pixel bars
+            %             bh_avp_exp_panels_bars(ao, parameterSet, expIdx);
+            %         case 6     % blue dot-field
+            %             bh_avp_exp_panels_dots(ao, parameterSet, expIdx);
+            %         case {7,9} % blue brightness
+            %             bh_avp_exp_panels_bright(ao, parameterSet, expIdx);
+            %         case 11     % blue two-pixel bar, closer spaced for mapping
+            %             bh_avp_exp_panels_barMap(ao, parameterSet, expIdx);
     end
     
 end
@@ -137,6 +171,8 @@ load chirp
 sound(y,Fs)
 
 disp('Remember to turn off motor controller')
+disp('Check UV LED is OFF!!!')
+
 end
 
 function [folderpath] = exp_folder_setup(expSelect,todaypath)
@@ -199,7 +235,7 @@ if ~isempty(d1) || ~isempty(d2) % differences found
     elseif isempty(d2)
         fields = fieldnames(d1);
     elseif isempty(d1)
-            fields = fieldnames(d2);
+        fields = fieldnames(d2);
     end
     
     for n = 1:size(fields,1)
@@ -208,10 +244,10 @@ if ~isempty(d1) || ~isempty(d2) % differences found
         disp(['     change [' num2str([newSet.(fields{n})]) ']'])
     end
     
-%     if ~isempty(setdiff(fieldnames(d2),fieldnames(d1)))
-%         disp('Some fields not found:')
-%         disp(setdiff(fieldnames(d2),fieldnames(d1)))
-%     end
+    %     if ~isempty(setdiff(fieldnames(d2),fieldnames(d1)))
+    %         disp('Some fields not found:')
+    %         disp(setdiff(fieldnames(d2),fieldnames(d1)))
+    %     end
     
     continueFlag = 0;
     while ~continueFlag

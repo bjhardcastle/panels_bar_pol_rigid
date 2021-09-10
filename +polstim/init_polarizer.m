@@ -62,7 +62,7 @@ else
     % Get Hall sensor reading
     sensor_value = inputSingleScan(AI);
     
-    while sensor_value > 0.5
+    while sensor_value > 0.6
         
         sendSessionSteps(AO,1,rev);
         pause(0.1)

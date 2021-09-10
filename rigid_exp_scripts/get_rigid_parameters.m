@@ -2,26 +2,36 @@
 pSet = [];
 
 % EXP1: BAR TRACK+CL POL EXPOSURE - BAR DISAPPEAR - POL AT NEW ANGLE
-n = 1;
-pSet(n).trialTestPauseLength = 1;
-pSet(n).trialReps = 5;
+n = 1;        
+pSet(n).trialReps = 10;
 pSet(n).recPreExpPauseLength = 0;
 pSet(n).recPostExpPauseLength = 0;
 pSet(n).trialBaselinePauseLength = 0;
-pSet(n).polAngleArray = [0, 30, 60, -30, -60]; 
+pSet(n).expRandomHomeAngle = 1;
+pSet(n).polHomeAngleArray = [0:7.5:360];
+pSet(n).polHomeAngleFixed = [0]; % in case home angle not randomized
+pSet(n).polShiftAngleArray = [0, 0, 45, 90, -45, -90]; 
 pSet(n).trialRandomizeOrder = 1;
 pSet(n).preExpFrontBarThreshold = 30; % s (feed into arduino toolbox)
-pSet(n).interTrialBarThreshold = 10; % s (feed into arduino toolbox)
-pSet(n).barBrightness = 1; % 0-7
+pSet(n).interTrialBarThreshold = 3; % s (feed into arduino toolbox)
+pSet(n).barBrightness = 7; % 0-7
+pSet(n).patXposBarStart = 136; % back, center of arena
+pSet(n).barFrontalPos = 57;
 pSet(n).patYposBarON = pSet(n).barBrightness+1;
 pSet(n).patYposBarOFF = 1;
-pSet(n).patIdxArray = 1;
+% pSet(n).patIdxArray = [1 2];
+pSet(n).patGrating = 1;
+pSet(n).patBar = 1;
 % pSet(n).patYposArray = [pSet(n).barBrightness+1]; % 1 trial positions (bright)
-pSet(n).patXgain = -20;
-
+pSet(n).patXgain = -30;
 % pSet(n).trialPreRotatePauseLength = 10;
 % pSet(n).LEDvoltageHI = 0.4;
 % pSet(n).LEDvoltageLO = 0;
+pSet(n).trialTestPauseLength = 0;
+pSet(n).trialDuringRotateLEDON = 1; % 1 = keep light on while pol angle changes
+pSet(n).trialPauseAfterBarDisappear = 1; % sec
+pSet(n).prePolExposeDuration = 30; % sec
+pSet.preTrialSetBarWait = 0; % logical, apply preExpFrontBarThreshold before every set of trials
 
 %{
 % % 2p settings for reference

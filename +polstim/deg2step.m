@@ -8,18 +8,19 @@ function [updated_pos, deg_actual, num_steps] = deg2step(deg_target, current_pos
 %                                (microstepping up to 1/8th also possible)
 %              - current_pos in range 0:47
 %              - motor was initialised to 0deg && current_pos set to 0
-micro_steps = 1/2; % EasyDriver board can microstep [1/2, 1/4, 1/8]th steps. 
+micro_steps = 1; % EasyDriver board can microstep [1/2, 1/4, 1/8]th steps. 
                  % 1 = full steps, 48 steps per revolution
 
 % Calculate steps required from current motor position:
 total_steps = 48/micro_steps; % Steps in full 360 rotation
 step_resolution = 360/total_steps;
-num_steps = mod([round(deg_target/step_resolution) - current_pos], total_steps); % 3.75 deg / step
-if num_steps > total_steps*0.5
+req_steps = mod([round(deg_target/step_resolution) - current_pos], total_steps); % 3.75 deg / step
+if req_steps > total_steps*0.5
     rev = 1;
-    num_steps = total_steps - num_steps;
+    num_steps = total_steps - req_steps;
 else
     rev = 0;
+    num_steps = req_steps;
 end
 
 % In case daq objct was left running:
@@ -47,7 +48,7 @@ if num_steps ~= 0
         
 end
 
-updated_pos = mod([current_pos + num_steps], total_steps); % steps
+updated_pos = mod([current_pos + req_steps], total_steps); % steps
 
 deg_actual = updated_pos * step_resolution; % degrees 
 end

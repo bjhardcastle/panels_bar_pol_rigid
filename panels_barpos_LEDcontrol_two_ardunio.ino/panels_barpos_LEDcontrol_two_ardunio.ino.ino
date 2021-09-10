@@ -16,7 +16,7 @@ int barPosInputPin = A0;  // input from panels controller (DAC), sampled on A0
 int barPosPinVal = 0;     // raw input val (0-1023)
 float barPos = 0;           // store the bar position (in pixels)
 int barMidlinePos = 57;   // (pixels) adjust according to pattern
-int LEDToggleRange = 2;   // (+/-pixels) half-width of window in which LED will be on
+int LEDToggleRange = 4;   // (+/-pixels) half-width of window in which LED will be on
 
 int LEDVoltage = 5;           // store the desired LED voltage (0-5V)
 
@@ -37,6 +37,12 @@ int windowFlagOutputPin = 4;  // mark when bar is within window with digital sig
 int windowFlag = LOW;  // 
 
 // ####################################################################################################
+////////////////////////////////////////////////////////
+////////////new/////////////////////////////////////////
+int LEDOutputLUT[199] = 0;
+////////////////////////////////////////////////////////
+////////////new/////////////////////////////////////////
+// ####################################################################################################
 
 void setup() {
 // put your setup code here, to run once:
@@ -54,6 +60,15 @@ pinMode(windowFlagOutputPin, OUTPUT);                          // sets the pin a
 // Serial.print("\n\tnano reset\n");
 
 LEDOutputPinVal = LEDVoltage * 51;  //255/5
+
+// ####################################################################################################
+////////////////////////////////////////////////////////
+////////////new/////////////////////////////////////////
+// LEDOutputLUT  = LEDVoltage*exp(-(pow((LEDOutputLUT-barMidlinePos),2))/4);
+// LEDOutputLUT = LEDOutputLUT*51;
+////////////////////////////////////////////////////////
+////////////new/////////////////////////////////////////
+// ####################################################################################################
 
 }
 // ####################################################################################################
@@ -82,6 +97,13 @@ if (!bypassToggle) {
 
 if ((barPos >= (barMidlinePos - LEDToggleRange)) && (barPos <= (barMidlinePos + LEDToggleRange))) {  // bar is within window
 analogWrite(LEDOutputPin, LEDOutputPinVal);
+
+////////////////////////////////////////////////////////
+////////////new/////////////////////////////////////////
+// analogWrite(LEDOutputPin, LEDOutputLUT[barPos]);
+////////////////////////////////////////////////////////
+////////////new/////////////////////////////////////////
+
 digitalWrite(LED_BUILTIN, HIGH);  // for testing
 windowFlag = 1; 
 }

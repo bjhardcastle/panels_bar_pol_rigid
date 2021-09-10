@@ -1,11 +1,14 @@
 %% Setup variables 
+global uno
 
+% if ~exist('pSet') || ~isfield(pSet,'bar_time_threshold')
+    
 % tracking amount of time bar has spent in window
 bar_time_threshold = 30; % sec
 
 % before it disappears, bar must be within window for _fraction of the last _threshold sec
-bar_disappear_fraction = 0.5; 
-bar_disappear_threshold = 10; %sec
+bar_disappear_fraction = 0.9; 
+bar_disappear_threshold = 2; %sec
 bar_disappear_interval = 0.1; %sec
 
 % % voltages to send to LED driver (MOD mode: 0-5V => 0-100%)

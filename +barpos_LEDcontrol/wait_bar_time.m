@@ -1,14 +1,22 @@
 %% Setup variables
-% variables to track amount of time bar has spent in window
+global uno
 if ~exist('uno','var')
    barpos_LEDcontrol.init_arduino 
 end
 
-digitalWrite(uno,bypassOutputPin,0)
+writeDigitalPin(uno,bypassOutputPin,0)
 
 disp(['Waiting for cumuluative bar_time to pass ' num2str(bar_time_threshold) 'sec...'])
 % bar_time = 0; % seconds
-barWindowFlag = 0;
+windowFlag = 0;
+barpos_LEDcontrol.reset_bar_time
+wbtcounter = 0;
+clear tS
+tS = 0;                
+display_counter = 0;
+if ~display_counter
+    disp('[counter display is off]')
+end
 while bar_time < bar_time_threshold
         
     barInWindow = readDigitalPin(uno,barInWindowInputPin);
@@ -16,21 +24,35 @@ while bar_time < bar_time_threshold
     if barInWindow
         if ~windowFlag % bar was previously outside
             % start timer
-            tStart = tic;
+            tS = tic;
         else
-            % add elapsed time to sum
-            bar_time = bar_time + toc(tStart);
-            % restart timer
-            tStart = tic;
+                wbtcounter = wbtcounter+1;
+                % add elapsed time to sum
+                if exist('tS','var')
+            bar_time = bar_time + toc(tS);
+                end
+                
+                if ~mod(wbtcounter,50) && display_counter
+                    disp(num2str(bar_time))
+                end
+                
+                % restart timer
+                tS = tic;
         end
+        
         windowFlag = 1;
-    end
-    
-    if ~mod(bar_time,1) %== 0
-        disp(num2str(bar_time))
-    end
-end
+    else
+        windowFlag = 0;
+        if exist('tS','var')
+           clearvars tS
+        end
 
+    end
+%     if bar_time > 0 && ~mod(bar_time,1) %== 0
+%         disp(num2str(bar_time))
+%     end
+end
+disp(['bar wait threshold (' num2str(bar_time_threshold) ') passed!'])
 % Next: wait for bar position to be within window for x sec, then turn off
 % bar/ move it to back and  move to next phase of exp and
 
